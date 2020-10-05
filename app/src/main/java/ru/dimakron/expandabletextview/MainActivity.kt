@@ -13,7 +13,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         expandableTextView.text = getString(R.string.lorem_ipsum)
-        expandableTextView.transformationMethod = LinkTransformationMethod({})
-        expandableTextView.movementMethod = LinkMovementMethod.getInstance()
+        //not working now
+        //expandableTextView.transformationMethod = LinkTransformationMethod({})
+        //expandableTextView.movementMethod = LinkMovementMethod.getInstance()
     }
 }
