@@ -2,7 +2,8 @@ package ru.dimakron.expandabletextview_lib
 
 import android.content.Context
 import android.graphics.Color
-import android.text.SpannableStringBuilder
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
@@ -13,20 +14,17 @@ import androidx.appcompat.widget.AppCompatTextView
 
 class ExpandableTextView: AppCompatTextView {
 
-    companion object {
-        const val ELLIPSIZE = "..."
-        const val SPACE = " "
-    }
-
     private var rawText: CharSequence = ""
-    private var bufferType = BufferType.NORMAL
+    private var collapsedText: CharSequence = ""
+    private var expandedText: CharSequence = ""
 
-    private var readMore = true
+    private var bufferType = BufferType.NORMAL
+    private var isExpanded = false
 
     var trimLength = 240
         set(value) {
             field = value
-            setText()
+            update()
         }
 
     var trimCollapsedText: CharSequence? = null
@@ -34,10 +32,10 @@ class ExpandableTextView: AppCompatTextView {
     var colorClickableText = Color.BLUE
     private var showTrimExpandedText = true
 
-    private var onInterceptTrimText: ((s: SpannableStringBuilder, trimText: CharSequence?) -> Unit)? = null
+    var onInterceptTrimText: ((s: Spannable, trimText: CharSequence?) -> Unit)? = null
         set(value) {
             field = value
-            setText()
+            update()
         }
 
     constructor(context: Context): super(context) {
@@ -64,66 +62,44 @@ class ExpandableTextView: AppCompatTextView {
             a?.recycle()
         }
 
-        setText()
+        update()
     }
 
-    private fun setText() {
-        super.setText(getDisplayableText(), bufferType)
+    private fun update() {
+        if(trimLength >= rawText.length){
+            collapsedText = rawText
+            expandedText = rawText
+        } else {
+            val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $trimCollapsedText")
+            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (trimCollapsedText?.length ?: 0), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            onInterceptTrimText?.invoke(collapsedSpannable, trimCollapsedText)
+            collapsedText = collapsedSpannable
+
+            if(showTrimExpandedText) {
+                val expandedSpannable = SpannableString("$rawText $trimExpandedText")
+                expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (trimExpandedText?.length ?: 0), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                onInterceptTrimText?.invoke(expandedSpannable, trimExpandedText)
+                expandedText = expandedSpannable
+            } else {
+                expandedText = rawText
+            }
+        }
+
+        super.setText(if(isExpanded) expandedText else collapsedText, bufferType)
+
         movementMethod = LinkMovementMethod.getInstance()
         highlightColor = Color.TRANSPARENT
-    }
-
-    private fun getDisplayableText(): CharSequence? {
-        return getTrimmedText(rawText)
     }
 
     override fun setText(text: CharSequence?, type: BufferType?) {
         rawText = text?: ""
         bufferType = type?: BufferType.NORMAL
-        setText()
-    }
-
-    private fun getTrimmedText(text: CharSequence?): CharSequence? {
-        if (text != null && text.length > trimLength) {
-            if (readMore) {
-                return updateCollapsedText()
-            } else {
-                return updateExpandedText()
-            }
-        }
-        return text
-    }
-
-    private fun updateCollapsedText(): CharSequence {
-        val trimEndIndex = trimLength + 1
-        val s = SpannableStringBuilder(rawText, 0, trimEndIndex)
-            .append(ELLIPSIZE)
-            .append(SPACE)
-            .append(trimCollapsedText)
-        return addClickableSpan(s, trimCollapsedText)
-    }
-
-    private fun updateExpandedText(): CharSequence? {
-        if (showTrimExpandedText) {
-            val s = SpannableStringBuilder(rawText, 0, rawText.length)
-                .append(SPACE)
-                .append(trimExpandedText)
-            return addClickableSpan(s, trimExpandedText)
-        }
-        return rawText
-    }
-
-    private fun addClickableSpan(s: SpannableStringBuilder, trimText: CharSequence?): CharSequence {
-        s.setSpan(clickableSpan, s.length - (trimText?.length ?: 0), s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        onInterceptTrimText?.invoke(s, trimText)
-
-        return s
+        update()
     }
 
     fun toggle() {
-        readMore = !readMore
-        setText()
+        isExpanded = !isExpanded
+        super.setText(if(isExpanded) expandedText else collapsedText, bufferType)
     }
 
     private val clickableSpan = object: ClickableSpan() {
