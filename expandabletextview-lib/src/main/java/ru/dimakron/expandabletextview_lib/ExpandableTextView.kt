@@ -27,9 +27,23 @@ class ExpandableTextView: AppCompatTextView {
             update()
         }
 
-    var trimCollapsedText: CharSequence = ""
-    var trimExpandedText: CharSequence = ""
-    var colorClickableText = Color.BLUE
+    var collapsedLinkText: CharSequence = ""
+        set(value) {
+            field = value
+            update()
+        }
+
+    var expandedLinkText: CharSequence = ""
+        set(value) {
+            field = value
+            update()
+        }
+
+    var linkColor = Color.BLUE
+        set(value) {
+            field = value
+            update()
+        }
 
     var onInterceptTrimText: ((s: Spannable, trimText: CharSequence) -> Unit)? = null
         set(value) {
@@ -52,10 +66,10 @@ class ExpandableTextView: AppCompatTextView {
     private fun init(attrs: AttributeSet? = null) {
         val a = attrs?.let { context.theme.obtainStyledAttributes(it, R.styleable.ExpandableTextView, 0, 0) }
         try {
-            trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength)?: trimLength
-            trimCollapsedText = a?.getString(R.styleable.ExpandableTextView_trimCollapsedText)?: resources.getString(R.string.read_more_show)
-            trimExpandedText = a?.getString(R.styleable.ExpandableTextView_trimExpandedText)?: resources.getString(R.string.read_more_hide)
-            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText)?: colorClickableText
+            trimLength = a?.getInt(R.styleable.ExpandableTextView_etv_trimLength, trimLength)?: trimLength
+            collapsedLinkText = a?.getString(R.styleable.ExpandableTextView_etv_textCollapsedLink)?: resources.getString(R.string.read_more_show)
+            expandedLinkText = a?.getString(R.styleable.ExpandableTextView_etv_textExpandedLink)?: resources.getString(R.string.read_more_hide)
+            linkColor = a?.getColor(R.styleable.ExpandableTextView_etv_textColorLink, linkColor)?: linkColor
         } finally {
             a?.recycle()
         }
@@ -68,14 +82,14 @@ class ExpandableTextView: AppCompatTextView {
             collapsedText = rawText
             expandedText = rawText
         } else {
-            val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $trimCollapsedText")
-            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (trimCollapsedText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onInterceptTrimText?.invoke(collapsedSpannable, trimCollapsedText)
+            val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $collapsedLinkText")
+            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (collapsedLinkText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            onInterceptTrimText?.invoke(collapsedSpannable, collapsedLinkText)
             collapsedText = collapsedSpannable
 
-            val expandedSpannable = SpannableString("$rawText $trimExpandedText")
-            expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (trimExpandedText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onInterceptTrimText?.invoke(expandedSpannable, trimExpandedText)
+            val expandedSpannable = SpannableString("$rawText $expandedLinkText")
+            expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (expandedLinkText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            onInterceptTrimText?.invoke(expandedSpannable, expandedLinkText)
             expandedText = expandedSpannable
         }
 
@@ -103,7 +117,7 @@ class ExpandableTextView: AppCompatTextView {
         }
 
         override fun updateDrawState(ds: TextPaint) {
-            ds.color = colorClickableText
+            ds.color = linkColor
         }
     }
 }
