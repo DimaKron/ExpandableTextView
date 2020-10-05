@@ -13,7 +13,7 @@ import androidx.appcompat.widget.AppCompatTextView
 
 class ExpandableTextView: AppCompatTextView {
 
-    companion object{
+    companion object {
         const val ELLIPSIZE = "..."
         const val SPACE = " "
     }
@@ -39,26 +39,26 @@ class ExpandableTextView: AppCompatTextView {
             setText()
         }
 
-    constructor(context: Context): super(context){
+    constructor(context: Context): super(context) {
         init()
     }
 
-    constructor(context: Context, attrs: AttributeSet?): super(context, attrs){
+    constructor(context: Context, attrs: AttributeSet?): super(context, attrs) {
         init(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int): super(context, attrs, defStyleAttr){
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int): super(context, attrs, defStyleAttr) {
         init(attrs)
     }
 
     private fun init(attrs: AttributeSet? = null) {
         val a = attrs?.let { context.theme.obtainStyledAttributes(it, R.styleable.ExpandableTextView, 0, 0) }
         try {
-            trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength)?: trimLength
-            trimCollapsedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimCollapsedText, R.string.read_more_show)?: R.string.read_more_show)
-            trimExpandedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimExpandedText, R.string.read_more_hide)?: R.string.read_more_hide)
-            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText)?: colorClickableText
-            showTrimExpandedText = a?.getBoolean(R.styleable.ExpandableTextView_showTrimExpandedText, showTrimExpandedText)?: showTrimExpandedText
+            trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength) ?: trimLength
+            trimCollapsedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimCollapsedText, R.string.read_more_show) ?: R.string.read_more_show)
+            trimExpandedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimExpandedText, R.string.read_more_hide) ?: R.string.read_more_hide)
+            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText) ?: colorClickableText
+            showTrimExpandedText = a?.getBoolean(R.styleable.ExpandableTextView_showTrimExpandedText, showTrimExpandedText) ?: showTrimExpandedText
         } finally {
             a?.recycle()
         }
@@ -104,7 +104,7 @@ class ExpandableTextView: AppCompatTextView {
 
     private fun updateExpandedText(): CharSequence? {
         if (showTrimExpandedText) {
-            val s = SpannableStringBuilder(customText, 0, customText?.length?: 0)
+            val s = SpannableStringBuilder(customText, 0, customText?.length ?: 0)
                 .append(SPACE)
                 .append(trimExpandedText)
             return addClickableSpan(s, trimExpandedText)
@@ -113,18 +113,22 @@ class ExpandableTextView: AppCompatTextView {
     }
 
     private fun addClickableSpan(s: SpannableStringBuilder, trimText: CharSequence?): CharSequence {
-        s.setSpan(clickableSpan, s.length - (trimText?.length?: 0), s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        s.setSpan(clickableSpan, s.length - (trimText?.length ?: 0), s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         onInterceptTrimText?.invoke(s, trimText)
 
         return s
     }
 
+    fun toggle() {
+        readMore = !readMore
+        setText()
+    }
+
     private val clickableSpan = object: ClickableSpan() {
 
         override fun onClick(widget: View) {
-            readMore = !readMore
-            setText()
+            toggle()
         }
 
         override fun updateDrawState(ds: TextPaint) {
