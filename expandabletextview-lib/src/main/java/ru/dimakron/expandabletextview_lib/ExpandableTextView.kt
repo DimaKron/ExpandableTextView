@@ -1,4 +1,4 @@
-package ru.dimakron.expandabletextview_lib;
+package ru.dimakron.expandabletextview_lib
 
 
 import android.content.Context
@@ -107,21 +107,21 @@ class ExpandableTextView: AppCompatTextView {
 
     private fun updateExpandedText(): CharSequence? {
         if (showTrimExpandedText) {
-            val s = SpannableStringBuilder(customText, 0, customText?.length?: 0).append(trimExpandedText);
-            return addClickableSpan(s, trimExpandedText);
+            val s = SpannableStringBuilder(customText, 0, customText?.length?: 0).append(trimExpandedText)
+            return addClickableSpan(s, trimExpandedText)
         }
         return customText
     }
 
     private fun addClickableSpan(s: SpannableStringBuilder, trimText: CharSequence?): CharSequence {
-        s.setSpan(viewMoreSpan, s.length - (trimText?.length?: 0), s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        s.setSpan(clickableSpan, s.length - (trimText?.length?: 0), s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         onInterceptTrimText?.invoke(s, trimText)
 
         return s
     }
 
-    private val viewMoreSpan = object: ClickableSpan() {
+    private val clickableSpan = object: ClickableSpan() {
 
         override fun onClick(widget: View) {
             readMore = !readMore
