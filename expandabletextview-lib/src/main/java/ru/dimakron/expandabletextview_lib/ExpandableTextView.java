@@ -11,7 +11,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewTreeObserver;
 
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
@@ -20,11 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExpandableTextView extends AppCompatTextView {
 
-    private static final int TRIM_MODE_LINES = 0;
-    private static final int TRIM_MODE_LENGTH = 1;
     private static final int DEFAULT_TRIM_LENGTH = 240;
-    private static final int DEFAULT_TRIM_LINES = 2;
-    private static final int INVALID_END_INDEX = -1;
     private static final boolean DEFAULT_SHOW_TRIM_EXPANDED_TEXT = true;
     private static final String ELLIPSIZE = "... ";
 
@@ -37,10 +32,6 @@ public class ExpandableTextView extends AppCompatTextView {
     private ReadMoreClickableSpan viewMoreSpan;
     private int colorClickableText;
     private boolean showTrimExpandedText;
-
-    private int trimMode;
-    private int lineEndIndex;
-    private int trimLines;
 
     private TrimTextInterceptor trimTextInterceptor;
 
@@ -63,13 +54,10 @@ public class ExpandableTextView extends AppCompatTextView {
 
         this.trimCollapsedText = getResources().getString(resourceIdTrimCollapsedText);
         this.trimExpandedText = getResources().getString(resourceIdTrimExpandedText);
-        this.trimLines = typedArray.getInt(R.styleable.ExpandableTextView_trimLines, DEFAULT_TRIM_LINES);
         this.colorClickableText = typedArray.getColor(R.styleable.ExpandableTextView_colorClickableText, ContextCompat.getColor(context, R.color.link));
         this.showTrimExpandedText = typedArray.getBoolean(R.styleable.ExpandableTextView_showTrimExpandedText, DEFAULT_SHOW_TRIM_EXPANDED_TEXT);
-        this.trimMode = typedArray.getInt(R.styleable.ExpandableTextView_trimMode, TRIM_MODE_LINES);
         typedArray.recycle();
         viewMoreSpan = new ReadMoreClickableSpan();
-        onGlobalLayoutLineEndIndex();
         setText();
     }
 
@@ -91,44 +79,18 @@ public class ExpandableTextView extends AppCompatTextView {
     }
 
     private CharSequence getTrimmedText(CharSequence text) {
-        if (trimMode == TRIM_MODE_LENGTH) {
-            if (text != null && text.length() > trimLength) {
-                if (readMore) {
-                    return updateCollapsedText();
-                } else {
-                    return updateExpandedText();
-                }
-            }
-        }
-        if (trimMode == TRIM_MODE_LINES) {
-            if (text != null && lineEndIndex > 0) {
-                if (readMore) {
-                    if (getLayout().getLineCount() > trimLines) {
-                        return updateCollapsedText();
-                    }
-                } else {
-                    return updateExpandedText();
-                }
+        if (text != null && text.length() > trimLength) {
+            if (readMore) {
+                return updateCollapsedText();
+            } else {
+                return updateExpandedText();
             }
         }
         return text;
     }
 
     private CharSequence updateCollapsedText() {
-        int trimEndIndex = text.length();
-        switch (trimMode) {
-            case TRIM_MODE_LINES:
-                trimEndIndex = lineEndIndex - (ELLIPSIZE.length() + trimCollapsedText.length() + 1);
-                if (trimEndIndex < 0) {
-                    trimEndIndex = trimLength + 1;
-                }
-                break;
-            case TRIM_MODE_LENGTH:
-                trimEndIndex = trimLength + 1;
-                break;
-        }
-
-
+        int trimEndIndex = trimLength + 1;
         SpannableStringBuilder s = new SpannableStringBuilder(text, 0, trimEndIndex)
                 .append(ELLIPSIZE)
                 .append(trimCollapsedText);
@@ -168,14 +130,6 @@ public class ExpandableTextView extends AppCompatTextView {
         this.trimExpandedText = trimExpandedText;
     }
 
-    public void setTrimMode(int trimMode) {
-        this.trimMode = trimMode;
-    }
-
-    public void setTrimLines(int trimLines) {
-        this.trimLines = trimLines;
-    }
-
     public void setTrimTextInterceptor(TrimTextInterceptor trimTextInterceptor){
         this.trimTextInterceptor = trimTextInterceptor;
         setText();
@@ -195,34 +149,6 @@ public class ExpandableTextView extends AppCompatTextView {
         @Override
         public void updateDrawState(@NotNull TextPaint ds) {
             ds.setColor(colorClickableText);
-        }
-    }
-
-    private void onGlobalLayoutLineEndIndex() {
-        if (trimMode == TRIM_MODE_LINES) {
-            getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    ViewTreeObserver obs = getViewTreeObserver();
-                    obs.removeOnGlobalLayoutListener(this);
-                    refreshLineEndIndex();
-                    setText();
-                }
-            });
-        }
-    }
-
-    private void refreshLineEndIndex() {
-        try {
-            if (trimLines == 0) {
-                lineEndIndex = getLayout().getLineEnd(0);
-            } else if (trimLines > 0 && getLineCount() >= trimLines) {
-                lineEndIndex = getLayout().getLineEnd(trimLines - 1);
-            } else {
-                lineEndIndex = INVALID_END_INDEX;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
