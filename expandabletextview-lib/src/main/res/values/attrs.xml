@@ -5,7 +5,6 @@
         <attr name="trimExpandedText" format="string" />
         <attr name="trimCollapsedText" format="string" />
         <attr name="trimLength" format="integer" />
-        <attr name="showTrimExpandedText" format="boolean" />
         <attr name="colorClickableText" format="color" />
     </declare-styleable>
 

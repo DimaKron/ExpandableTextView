@@ -27,12 +27,11 @@ class ExpandableTextView: AppCompatTextView {
             update()
         }
 
-    var trimCollapsedText: CharSequence? = null
-    var trimExpandedText: CharSequence? = null
+    var trimCollapsedText: CharSequence = ""
+    var trimExpandedText: CharSequence = ""
     var colorClickableText = Color.BLUE
-    private var showTrimExpandedText = true
 
-    var onInterceptTrimText: ((s: Spannable, trimText: CharSequence?) -> Unit)? = null
+    var onInterceptTrimText: ((s: Spannable, trimText: CharSequence) -> Unit)? = null
         set(value) {
             field = value
             update()
@@ -53,11 +52,10 @@ class ExpandableTextView: AppCompatTextView {
     private fun init(attrs: AttributeSet? = null) {
         val a = attrs?.let { context.theme.obtainStyledAttributes(it, R.styleable.ExpandableTextView, 0, 0) }
         try {
-            trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength) ?: trimLength
-            trimCollapsedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimCollapsedText, R.string.read_more_show) ?: R.string.read_more_show)
-            trimExpandedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimExpandedText, R.string.read_more_hide) ?: R.string.read_more_hide)
-            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText) ?: colorClickableText
-            showTrimExpandedText = a?.getBoolean(R.styleable.ExpandableTextView_showTrimExpandedText, showTrimExpandedText) ?: showTrimExpandedText
+            trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength)?: trimLength
+            trimCollapsedText = a?.getString(R.styleable.ExpandableTextView_trimCollapsedText)?: resources.getString(R.string.read_more_show)
+            trimExpandedText = a?.getString(R.styleable.ExpandableTextView_trimExpandedText)?: resources.getString(R.string.read_more_hide)
+            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText)?: colorClickableText
         } finally {
             a?.recycle()
         }
@@ -71,18 +69,14 @@ class ExpandableTextView: AppCompatTextView {
             expandedText = rawText
         } else {
             val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $trimCollapsedText")
-            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (trimCollapsedText?.length ?: 0), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (trimCollapsedText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             onInterceptTrimText?.invoke(collapsedSpannable, trimCollapsedText)
             collapsedText = collapsedSpannable
 
-            if(showTrimExpandedText) {
-                val expandedSpannable = SpannableString("$rawText $trimExpandedText")
-                expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (trimExpandedText?.length ?: 0), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                onInterceptTrimText?.invoke(expandedSpannable, trimExpandedText)
-                expandedText = expandedSpannable
-            } else {
-                expandedText = rawText
-            }
+            val expandedSpannable = SpannableString("$rawText $trimExpandedText")
+            expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (trimExpandedText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            onInterceptTrimText?.invoke(expandedSpannable, trimExpandedText)
+            expandedText = expandedSpannable
         }
 
         super.setText(if(isExpanded) expandedText else collapsedText, bufferType)
