@@ -18,7 +18,8 @@ class ExpandableTextView: AppCompatTextView {
         const val SPACE = " "
     }
 
-    private var customText: CharSequence? = null
+    private var rawText: CharSequence? = null
+
     private var bufferType: BufferType? = null
     private var readMore = true
 
@@ -73,11 +74,11 @@ class ExpandableTextView: AppCompatTextView {
     }
 
     private fun getDisplayableText(): CharSequence? {
-        return getTrimmedText(customText)
+        return getTrimmedText(rawText)
     }
 
     override fun setText(text: CharSequence?, type: BufferType?) {
-        this.customText = text
+        this.rawText = text
         bufferType = type
         setText()
     }
@@ -95,7 +96,7 @@ class ExpandableTextView: AppCompatTextView {
 
     private fun updateCollapsedText(): CharSequence {
         val trimEndIndex = trimLength + 1
-        val s = SpannableStringBuilder(customText, 0, trimEndIndex)
+        val s = SpannableStringBuilder(rawText, 0, trimEndIndex)
             .append(ELLIPSIZE)
             .append(SPACE)
             .append(trimCollapsedText)
@@ -104,12 +105,12 @@ class ExpandableTextView: AppCompatTextView {
 
     private fun updateExpandedText(): CharSequence? {
         if (showTrimExpandedText) {
-            val s = SpannableStringBuilder(customText, 0, customText?.length ?: 0)
+            val s = SpannableStringBuilder(rawText, 0, rawText?.length ?: 0)
                 .append(SPACE)
                 .append(trimExpandedText)
             return addClickableSpan(s, trimExpandedText)
         }
-        return customText
+        return rawText
     }
 
     private fun addClickableSpan(s: SpannableStringBuilder, trimText: CharSequence?): CharSequence {
