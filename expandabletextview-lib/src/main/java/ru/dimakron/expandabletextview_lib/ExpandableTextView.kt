@@ -45,7 +45,7 @@ class ExpandableTextView: AppCompatTextView {
             update()
         }
 
-    var onInterceptTrimText: ((s: Spannable, trimText: CharSequence) -> Unit)? = null
+    var onCustomizeLink: ((s: Spannable, trimText: CharSequence) -> Unit)? = null
         set(value) {
             field = value
             update()
@@ -84,12 +84,12 @@ class ExpandableTextView: AppCompatTextView {
         } else {
             val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $collapsedLinkText")
             collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (collapsedLinkText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onInterceptTrimText?.invoke(collapsedSpannable, collapsedLinkText)
+            onCustomizeLink?.invoke(collapsedSpannable, collapsedLinkText)
             collapsedText = collapsedSpannable
 
             val expandedSpannable = SpannableString("$rawText $expandedLinkText")
             expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (expandedLinkText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onInterceptTrimText?.invoke(expandedSpannable, expandedLinkText)
+            onCustomizeLink?.invoke(expandedSpannable, expandedLinkText)
             expandedText = expandedSpannable
         }
 
