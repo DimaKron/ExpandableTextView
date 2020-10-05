@@ -10,7 +10,6 @@ import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
 
 class ExpandableTextView: AppCompatTextView {
 
@@ -31,7 +30,7 @@ class ExpandableTextView: AppCompatTextView {
 
     var trimCollapsedText: CharSequence? = null
     var trimExpandedText: CharSequence? = null
-    var colorClickableText: Int? = null
+    var colorClickableText = Color.BLUE
     private var showTrimExpandedText = true
 
     private var onInterceptTrimText: ((s: SpannableStringBuilder, trimText: CharSequence?) -> Unit)? = null
@@ -58,10 +57,7 @@ class ExpandableTextView: AppCompatTextView {
             trimLength = a?.getInt(R.styleable.ExpandableTextView_trimLength, trimLength)?: trimLength
             trimCollapsedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimCollapsedText, R.string.read_more_show)?: R.string.read_more_show)
             trimExpandedText = resources.getString(a?.getResourceId(R.styleable.ExpandableTextView_trimExpandedText, R.string.read_more_hide)?: R.string.read_more_hide)
-
-            val defaultColor = ContextCompat.getColor(context, R.color.link)
-            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, defaultColor)?: defaultColor
-
+            colorClickableText = a?.getColor(R.styleable.ExpandableTextView_colorClickableText, colorClickableText)?: colorClickableText
             showTrimExpandedText = a?.getBoolean(R.styleable.ExpandableTextView_showTrimExpandedText, showTrimExpandedText)?: showTrimExpandedText
         } finally {
             a?.recycle()
@@ -132,7 +128,7 @@ class ExpandableTextView: AppCompatTextView {
         }
 
         override fun updateDrawState(ds: TextPaint) {
-            colorClickableText?.let{ ds.color = it }
+            ds.color = colorClickableText
         }
     }
 }
