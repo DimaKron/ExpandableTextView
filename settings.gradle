@@ -1,2 +1,3 @@
+include ':expandabletextview-lib'
 include ':app'
 rootProject.name = "ExpandableTextView"
