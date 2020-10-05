@@ -2,10 +2,7 @@ package ru.dimakron.expandabletextview_lib
 
 import android.content.Context
 import android.graphics.Color
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
+import android.text.*
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.AttributeSet
@@ -45,7 +42,7 @@ class ExpandableTextView: AppCompatTextView {
             update()
         }
 
-    var onCustomizeLink: ((s: Spannable, trimText: CharSequence) -> Unit)? = null
+    var onCustomizeSpannable: ((s: Spannable, linkText: CharSequence) -> Unit)? = null
         set(value) {
             field = value
             update()
@@ -82,14 +79,20 @@ class ExpandableTextView: AppCompatTextView {
             collapsedText = rawText
             expandedText = rawText
         } else {
-            val collapsedSpannable = SpannableString("${rawText.subSequence(0, trimLength)}... $collapsedLinkText")
+            val collapsedSpannable = SpannableStringBuilder()
+                    .append(rawText.subSequence(0, trimLength))
+                    .append("... ")
+                    .append(collapsedLinkText)
             collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (collapsedLinkText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onCustomizeLink?.invoke(collapsedSpannable, collapsedLinkText)
+            onCustomizeSpannable?.invoke(collapsedSpannable, collapsedLinkText)
             collapsedText = collapsedSpannable
 
-            val expandedSpannable = SpannableString("$rawText $expandedLinkText")
+            val expandedSpannable = SpannableStringBuilder()
+                    .append(rawText)
+                    .append(" ")
+                    .append(expandedLinkText)
             expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (expandedLinkText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            onCustomizeLink?.invoke(expandedSpannable, expandedLinkText)
+            onCustomizeSpannable?.invoke(expandedSpannable, expandedLinkText)
             expandedText = expandedSpannable
         }
 
