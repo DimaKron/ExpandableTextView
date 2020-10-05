@@ -1,6 +1,5 @@
 package ru.dimakron.expandabletextview_lib
 
-
 import android.content.Context
 import android.graphics.Color
 import android.text.SpannableStringBuilder
@@ -16,7 +15,8 @@ import androidx.core.content.ContextCompat
 class ExpandableTextView: AppCompatTextView {
 
     companion object{
-        const val ELLIPSIZE = "... "
+        const val ELLIPSIZE = "..."
+        const val SPACE = " "
     }
 
     private var customText: CharSequence? = null
@@ -101,13 +101,16 @@ class ExpandableTextView: AppCompatTextView {
         val trimEndIndex = trimLength + 1
         val s = SpannableStringBuilder(customText, 0, trimEndIndex)
             .append(ELLIPSIZE)
+            .append(SPACE)
             .append(trimCollapsedText)
         return addClickableSpan(s, trimCollapsedText)
     }
 
     private fun updateExpandedText(): CharSequence? {
         if (showTrimExpandedText) {
-            val s = SpannableStringBuilder(customText, 0, customText?.length?: 0).append(trimExpandedText)
+            val s = SpannableStringBuilder(customText, 0, customText?.length?: 0)
+                .append(SPACE)
+                .append(trimExpandedText)
             return addClickableSpan(s, trimExpandedText)
         }
         return customText
