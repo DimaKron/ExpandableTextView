@@ -33,6 +33,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 
-    implementation project(":expandabletextview-lib")
-
+    // ExpandableTextView
+    //implementation project(":expandabletextview-lib")
+    implementation 'com.github.DimaKron:ExpandableTextView:1.0'
 }
