@@ -13,6 +13,6 @@ allprojects {
 Add the dependency
 ```
 dependencies {
-    implementation 'com.github.DimaKron:ExpandableTextView:1.0'
+    implementation 'com.github.DimaKron:ExpandableTextView:1.2'
 }
 ```
