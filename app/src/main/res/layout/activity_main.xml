@@ -28,6 +28,7 @@
             app:etv_textColorLink="@color/colorAccent"
             app:etv_textExpandedLink="@string/read_more_hide"
             app:etv_textCollapsedLink="@string/read_more_show"
+            app:etv_toggleByLinkOnly="true"
             tools:text="@string/lorem_ipsum" />
 
     </ScrollView>

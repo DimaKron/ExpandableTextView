@@ -12,7 +12,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 
-class ExpandableTextView: AppCompatTextView {
+class ExpandableTextView: AppCompatTextView, View.OnClickListener {
 
     private var rawText: CharSequence = ""
     private var collapsedText: CharSequence = ""
@@ -45,6 +45,12 @@ class ExpandableTextView: AppCompatTextView {
             update()
         }
 
+    var toggleByLinkOnly = true
+        set(value) {
+            field = value
+            update()
+        }
+
     var onStateChange: ((Boolean) -> Unit)? = null
 
     var onCustomizeSpannable: ((s: Spannable, linkText: CharSequence) -> Unit)? = null
@@ -72,6 +78,7 @@ class ExpandableTextView: AppCompatTextView {
             collapsedLinkText = a?.getString(R.styleable.ExpandableTextView_etv_textCollapsedLink)?: resources.getString(R.string.read_more_show)
             expandedLinkText = a?.getString(R.styleable.ExpandableTextView_etv_textExpandedLink)?: resources.getString(R.string.read_more_hide)
             linkColor = a?.getColor(R.styleable.ExpandableTextView_etv_textColorLink, linkColor)?: linkColor
+            toggleByLinkOnly = a?.getBoolean(R.styleable.ExpandableTextView_etv_toggleByLinkOnly, toggleByLinkOnly)?: toggleByLinkOnly
         } finally {
             a?.recycle()
         }
@@ -88,7 +95,9 @@ class ExpandableTextView: AppCompatTextView {
                     .append(rawText.subSequence(0, trimLength))
                     .append("... ")
                     .append(collapsedLinkText)
-            collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (collapsedLinkText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if(toggleByLinkOnly) {
+                collapsedSpannable.setSpan(clickableSpan, collapsedSpannable.length - (collapsedLinkText.length), collapsedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
             onCustomizeSpannable?.invoke(collapsedSpannable, collapsedLinkText)
             collapsedText = collapsedSpannable
 
@@ -96,7 +105,9 @@ class ExpandableTextView: AppCompatTextView {
                     .append(rawText)
                     .append(" ")
                     .append(expandedLinkText)
-            expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (expandedLinkText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if(toggleByLinkOnly) {
+                expandedSpannable.setSpan(clickableSpan, expandedSpannable.length - (expandedLinkText.length), expandedSpannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
             onCustomizeSpannable?.invoke(expandedSpannable, expandedLinkText)
             expandedText = expandedSpannable
         }
@@ -105,12 +116,18 @@ class ExpandableTextView: AppCompatTextView {
 
         movementMethod = LinkMovementMethod.getInstance()
         highlightColor = Color.TRANSPARENT
+
+        setOnClickListener(if(toggleByLinkOnly) null else this)
     }
 
     override fun setText(text: CharSequence?, type: BufferType?) {
         rawText = text?: ""
         bufferType = type?: BufferType.NORMAL
         update()
+    }
+
+    override fun onClick(v: View?) {
+        toggle()
     }
 
     fun toggle() {

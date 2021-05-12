@@ -6,6 +6,7 @@
         <attr name="etv_textCollapsedLink" format="string" />
         <attr name="etv_trimLength" format="integer" />
         <attr name="etv_textColorLink" format="color" />
+        <attr name="etv_toggleByLinkOnly" format="boolean" />
     </declare-styleable>
 
 </resources>
