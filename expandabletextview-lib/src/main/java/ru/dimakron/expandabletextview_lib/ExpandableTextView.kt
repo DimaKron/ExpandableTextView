@@ -2,7 +2,10 @@ package ru.dimakron.expandabletextview_lib
 
 import android.content.Context
 import android.graphics.Color
-import android.text.*
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.AttributeSet
@@ -41,6 +44,8 @@ class ExpandableTextView: AppCompatTextView {
             field = value
             update()
         }
+
+    var onStateChange: ((Boolean) -> Unit)? = null
 
     var onCustomizeSpannable: ((s: Spannable, linkText: CharSequence) -> Unit)? = null
         set(value) {
@@ -111,6 +116,7 @@ class ExpandableTextView: AppCompatTextView {
     fun toggle() {
         isExpanded = !isExpanded
         super.setText(if(isExpanded) expandedText else collapsedText, bufferType)
+        onStateChange?.invoke(isExpanded)
     }
 
     private val clickableSpan = object: ClickableSpan() {

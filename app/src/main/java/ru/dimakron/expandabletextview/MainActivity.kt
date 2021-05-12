@@ -6,7 +6,6 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import android.text.style.URLSpan
-import android.text.util.Linkify
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
